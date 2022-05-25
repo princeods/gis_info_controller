@@ -1,0 +1,32 @@
+<!--
+<html>
+	<body onload="init();">
+		<form id="thisF">
+			<input type="hidden" name="parm1" value="test">
+			<iframe name="ifrm" id="ifrm" width="1024" height="720" loading="lazy" />
+			<iframe src="https://www.google.com/maps/embed?pb=!4v1652356294902!6m8!1m7!1sT9CxN0DZzN8VovGFNKO3Zw!2m2!1d37.52543434444916!2d127.0263375019117!3f238.0001831054688!4f-1.51434326171875!5f0.7820865974627469" width="800" height="600" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+		</form>
+		https://www.google.com/maps/embed?pb=!4v1652346936061!6m8!1m7!1sT9CxN0DZzN8VovGFNKO3Zw!2m2!1d37.52543434444916!2d127.0263375019117!3f244.8335997546269!4f0!5f0.7820865974627469
+	</body>
+</html>
+
+
+<script>
+
+  function init(){
+
+      var form = document.forms[0];
+	  var lat;
+	  var lon;
+
+      form.target = "ifrm"
+      form.action = "https://www.google.com/maps/embed?pb=!4v1652346936061!6m8!1m7!1sT9CxN0DZzN8VovGFNKO3Zw!2m2!1d37.52543434444916!2d127.0263375019117!3f244.8335997546269!4f0!5f0.7820865974627469"
+      form.submit();
+
+}
+
+  </script>
+  
+-->
+
+<iframe src="https://www.google.com/maps/embed?pb=!4v1652356294902!6m8!1m7!1sT9CxN0DZzN8VovGFNKO3Zw!2m2!1d37.464732!2d127.043236!3f238.0001831054688!4f-1.51434326171875!5f0.7820865974627469" width="800" height="600" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
