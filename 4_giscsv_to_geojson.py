@@ -3,6 +3,7 @@ import glob
 import pandas
 from snowpipe import *
 from tqdm import tqdm
+import openpyxl
 
 # -----------------------------------------------------------------------------------
 
@@ -17,7 +18,7 @@ _fileSeed = "seed.xlsm"
 
 _wsTransformers = "transformers"
 
-_dfSeedTF = pandas.read_excel(_pathSeed + _fileSeed, _wsTransformers)
+_dfSeedTF = pandas.read_excel(_pathSeed + _fileSeed, _wsTransformers, engine='openpyxl')
 
 # check & generate folder ---------------------------------------------------------------------------------------
 
