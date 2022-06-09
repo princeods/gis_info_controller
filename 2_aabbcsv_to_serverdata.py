@@ -6,6 +6,7 @@ import re
 import pandas
 from tqdm import tqdm
 import datetime
+from enum import Enum
 
 
 # -----------------------------------------------------------------------------------
@@ -63,11 +64,21 @@ _liLv3StructureLab = [1, 1, 1, 1, 2, 2, 3]
 # -----------------------------------------------------------------------------------
 
 _dicCountryCode = {"ko":"1", "jp":"2", "ch":"3", "tw":"4", "us":"5", "ru":"6", "de":"7", "as":"e", "te":"f"}
-_dfSeedTF = pandas.read_excel(_pathSeed + _fileSeed, _wsTransformers)
-_dfCubeSocket = pandas.read_excel(_pathSeed + _fileSeed, _wsCubeSocket)
+_dfSeedTFS = pandas.read_excel(_pathSeed + _fileSeed, _wsTransformers + "_S", engine='openpyxl')
+_dfSeedTFA = pandas.read_excel(_pathSeed + _fileSeed, _wsTransformers + "_A", engine='openpyxl')
+_dfSeedTFB = pandas.read_excel(_pathSeed + _fileSeed, _wsTransformers + "_B", engine='openpyxl')
+_dfSeedTFC = pandas.read_excel(_pathSeed + _fileSeed, _wsTransformers + "_C", engine='openpyxl')
+_dfCubeSocket = pandas.read_excel(_pathSeed + _fileSeed, _wsCubeSocket, engine='openpyxl')
 
-_dSeedTFCount = len(_dfSeedTF)
+#_dSeedTFCount = len(_dfSeedTF)
 _dSeedCubeSocketCount = len(_dfCubeSocket) - 1
+
+# -----------------------------------------------------------------------------------
+
+class SBLevel:
+    Lv1 = 1
+    Lv2 = 2
+    Lv3 = 3
 
 # -----------------------------------------------------------------------------------
 
@@ -138,14 +149,14 @@ for _fileOriginCsvfile in glob.glob(_pathLocation+"*.csv"):
                 "\r" in _sTempName:
             _sSBLevel = Dec2Hex(1, 1)
         else:
-            #if (_dSBLv3Count / _dSBLv3Gap) == int(_dSBLv3Count / _dSBLv3Gap):
-            if "학교" in _sTempName:
+            if (_dSBLv3Count / _dSBLv3Gap) == int(_dSBLv3Count / _dSBLv3Gap):
                 _sSBLevel = Dec2Hex(3, 1)
             else:
                 _sSBLevel = Dec2Hex(2, 1)
 
         _dSBLv3Count += 1
         _xPrimaryKey = _sSBLevel + _sCountryCode + _sFileNum + Dec2Hex(i, 4)
+        _dSBLevel = int( _sSBLevel, 16 )
 
         # name dataframe append -----------------------------------------------------------------------------------
 
@@ -153,7 +164,7 @@ for _fileOriginCsvfile in glob.glob(_pathLocation+"*.csv"):
             
             _dfNameFile.loc[i, "PrimaryKey"] = int( _xPrimaryKey, 16 )
 
-            if int( "0x" + _sSBLevel, 16 ) == 1:
+            if _dSBLevel == 1:
                 _dfNameFile.loc[i, _sNameField] = _sNoName
             else:
                 if len( _sTempName ) > _dMaxNameLenth:
@@ -165,43 +176,50 @@ for _fileOriginCsvfile in glob.glob(_pathLocation+"*.csv"):
 
         _arHQ = []
 
+        _dTempHQBaseLevel = 0
+        _dTempHQFortressLevel = 0
+        _dTempHQLabLevel = 0
+        _dTempHQWarehouseLevel = 0
+        _dTempHQExhibitionLevel = 0
+        _dTempHQWorkshopLevel = 0
+
         for j in range(0,6):
             if j == 0:    # 본부
-                if _sSBLevel == "1":
+                if _dSBLevel == SBLevel.Lv1:
                     _dTempHQBaseLevel = random.choice(_liLv1StructureNor)
-                elif _sSBLevel == "2":
+                elif _dSBLevel == SBLevel.Lv2:
                     _dTempHQBaseLevel = random.choice(_liLv2StructureNor)
-                elif _sSBLevel == "3":
+                elif _dSBLevel == SBLevel.Lv3:
                     _dTempHQBaseLevel = random.choice(_liLv3StructureNor)
             elif j == 1:    # 요새
-                if _sSBLevel == "1":
+                if _dSBLevel == SBLevel.Lv1:
                     _dTempHQFortressLevel = random.choice(_liLv1StructureNor)
-                elif _sSBLevel == "2":
+                elif _dSBLevel == SBLevel.Lv2:
                     _dTempHQFortressLevel = random.choice(_liLv2StructureNor)
-                elif _sSBLevel == "3":
+                elif _dSBLevel == SBLevel.Lv3:
                     _dTempHQFortressLevel = random.choice(_liLv3StructureNor)
             elif j == 2:    # 연구소
-                if _sSBLevel == "1":
+                if _dSBLevel == SBLevel.Lv1:
                     _dTempHQLabLevel = random.choice(_liLv1StructureLab)
-                elif _sSBLevel == "2":
+                elif _dSBLevel == SBLevel.Lv2:
                     _dTempHQLabLevel = random.choice(_liLv2StructureLab)
-                elif _sSBLevel == "3":
+                elif _dSBLevel == SBLevel.Lv3:
                     _dTempHQLabLevel = random.choice(_liLv3StructureLab)
             elif j == 3:    # 창고
-                if _sSBLevel == "1":
+                if _dSBLevel == SBLevel.Lv1:
                     _dTempHQWarehouseLevel = random.choice(_liLv1StructureNor)
-                elif _sSBLevel == "2":
+                elif _dSBLevel == SBLevel.Lv2:
                     _dTempHQWarehouseLevel = random.choice(_liLv2StructureNor)
-                elif _sSBLevel == "3":
+                elif _dSBLevel == SBLevel.Lv3:
                     _dTempHQWarehouseLevel = random.choice(_liLv3StructureNor)
             elif j == 4:    # 전시관
                 _dTempHQExhibitionLevel = 1
             elif j == 5:    # 파츠 제작소
-                if _sSBLevel == "1":
+                if _dSBLevel == SBLevel.Lv1:
                     _dTempHQWorkshopLevel = random.choice(_liLv1StructureNor)
-                elif _sSBLevel == "2":
+                elif _dSBLevel == SBLevel.Lv2:
                     _dTempHQWorkshopLevel = random.choice(_liLv2StructureNor)
-                elif _sSBLevel == "3":
+                elif _dSBLevel == SBLevel.Lv3:
                     _dTempHQWorkshopLevel = random.choice(_liLv3StructureNor)
 
 
@@ -210,7 +228,7 @@ for _fileOriginCsvfile in glob.glob(_pathLocation+"*.csv"):
         if typeGeData.upper() == "A" or typeGeData.upper() == "S":
             
             _dfSBFile.loc[i, "PrimaryKey"] = int( _xPrimaryKey, 16 )
-            _dfSBFile.loc[i, "level"] = int( _sSBLevel )
+            _dfSBFile.loc[i, "level"] = int( _sSBLevel, 16 )
             _dfSBFile.loc[i, "latitude"] = _dfOrigin.loc[i, "y"]
             _dfSBFile.loc[i, "longitude"] = _dfOrigin.loc[i, "x"]
             _dfSBFile.loc[i, "cubeSocketKey"] = int( _dfCubeSocket.loc[random.randint(0,_dSeedCubeSocketCount), "PrimaryKey"], 16 )
@@ -224,17 +242,25 @@ for _fileOriginCsvfile in glob.glob(_pathLocation+"*.csv"):
             _dIndexTile = _dTempX + ( _dTempY * _dSBLod )
             _dfSBFile.loc[i, "indexTile"] = _dIndexTile
 
+            # sb 레벨 별 메인 이벤트가 24 로 동작할 비율 지정.
+            # 지정된 비율 외의 것은 
+
+            _fRatioMainEvent = 0
+
+            if SBLevel.Lv1 == _dSBLevel:
+                _fRatioMainEvent = 0.1
+            elif SBLevel.Lv2 == _dSBLevel:
+                _fRatioMainEvent = 0.2
+            elif SBLevel.Lv3 == _dSBLevel:
+                _fRatioMainEvent = 1.0
+
             _dfSBFile.loc[i, "weekEvent00"] = "1111111"
 
-            if random.random() <= 0.9:
-                # 90% 는 6 ~ 24 % 24 중 랜덤하게 이벤트 발생
-                # 분은 0 ~ 59 랜덤으로
-                # 분은 0 ~ 29 랜덤으로 - 서버에서 동일 시간 이벤트 검색만을 하기 위한 처리
-                _dfSBFile.loc[i, "timeEvent00"] = random.randint(6,24) % 24
+            if random.random() <= _fRatioMainEvent:
+                _dfSBFile.loc[i, "timeEvent00"] = 24
                 _dfSBFile.loc[i, "minuteEvent00"] = random.randint(0,59)
             else:
-                # 나머지 10 % 는 24 시간 발생하는 24 로..
-                _dfSBFile.loc[i, "timeEvent00"] = 24
+                _dfSBFile.loc[i, "timeEvent00"] = random.randint(6,24) % 24
                 _dfSBFile.loc[i, "minuteEvent00"] = random.randint(0,59)
 
             if random.random() <= 0.5:
@@ -247,33 +273,17 @@ for _fileOriginCsvfile in glob.glob(_pathLocation+"*.csv"):
                 _dfSBFile.loc[i, "timeEvent01"] = 0
                 _dfSBFile.loc[i, "minuteEvent01"] = 0
 
-            if int( _sSBLevel ) == 3:
-                _dfSBFile.loc[i, "spacebridgepoint"] = 100
-            elif int( _sSBLevel ) == 2:
-                _dfSBFile.loc[i, "spacebridgepoint"] = 50
-            elif int ( _sSBLevel ) == 1:
-                _dfSBFile.loc[i, "spacebridgepoint"] = 25
-
-            # print ( f"_dTempHQWorkshopLevel : {_dTempHQWorkshopLevel}" )
-            # print ( f"_dTempHQExhibitionLevel : {_dTempHQExhibitionLevel}" ) 
-            # print ( f"_dTempHQWarehouseLevel : {_dTempHQWarehouseLevel}" )
-            # print ( f"_dTempHQLabLevel : {_dTempHQLabLevel}" )
-            # print ( f"_dTempHQFortressLevel : {_dTempHQFortressLevel}" )
-            # print ( f"_dTempHQBaseLevel : {_dTempHQBaseLevel}" )
+            if _dSBLevel == SBLevel.Lv3:
+                _dfSBFile.loc[i, "spacebridgepoint"] = 30
+            elif _dSBLevel == SBLevel.Lv2:
+                _dfSBFile.loc[i, "spacebridgepoint"] = 20
+            elif _dSBLevel == SBLevel.Lv1:
+                _dfSBFile.loc[i, "spacebridgepoint"] = 10
 
             _sBuildingInfo = Dec2Hex(_dTempHQWorkshopLevel, 1) + Dec2Hex(_dTempHQExhibitionLevel, 1) + \
                 Dec2Hex(_dTempHQWarehouseLevel, 1) + Dec2Hex(_dTempHQLabLevel, 1) + Dec2Hex(_dTempHQFortressLevel, 1) + Dec2Hex(_dTempHQBaseLevel, 1)
 
-            # print ( f"_sBuildingInfo : {_sBuildingInfo}" )
-
             _dfSBFile.loc[i, "buildingLevelInfo"] = _sBuildingInfo
-
-            # _dfSBFile.loc[i, "HQBaseLevel"] = _dTempHQBaseLevel
-            # _dfSBFile.loc[i, "HQFortressLevel"] = _dTempHQFortressLevel
-            # _dfSBFile.loc[i, "HQLabLevel"] = _dTempHQLabLevel
-            # _dfSBFile.loc[i, "HQWarehouseLevel"] = _dTempHQWarehouseLevel
-            # _dfSBFile.loc[i, "HQExhibitionLevel"] = _dTempHQExhibitionLevel
-            # _dfSBFile.loc[i, "HQWorkshopLevel"] = _dTempHQWorkshopLevel
 
         # hq dataframe append -------------------------------------------------------------------------------------
 
@@ -306,31 +316,36 @@ for _fileOriginCsvfile in glob.glob(_pathLocation+"*.csv"):
             _dfSquadFile.loc[i, "PrimaryKey"] = 0
             _dfSquadFile.loc[i, "squad_type"] = int( _xPrimaryKey, 16 )
 
-            _ltTFCount = []
-            _ltTFCount = list(range(0,_dSeedTFCount))
+            _ltTF = []
+            _dDefenceTFCount = 0
+            _dTempTFLevel = 0
             
-            if _sSBLevel == "3":
+            if _dSBLevel == SBLevel.Lv3:
                 _dDefenceTFCount = 3
-            elif _sSBLevel == "2":
+                _ltTF = _dfSeedTFA['StandardCode'].values.tolist() + _dfSeedTFS['StandardCode'].values.tolist()
+            elif _dSBLevel == SBLevel.Lv2:
                 _dDefenceTFCount = random.randint(2, 3)
-            elif _sSBLevel == "1":
+                _ltTF = _dfSeedTFB['StandardCode'].values.tolist() + _dfSeedTFA['StandardCode'].values.tolist() + _dfSeedTFS['StandardCode'].values.tolist()
+            elif _dSBLevel == SBLevel.Lv1:
                 _dDefenceTFCount = random.randint(1, 3)
+                _ltTF = _dfSeedTFC['StandardCode'].values.tolist() + _dfSeedTFB['StandardCode'].values.tolist()
 
             for k in range(1,4):
                 _dTempTFLevel = 0
                 
-                if _sSBLevel == "3":
-                    _dTempTFLevel = random.randint(10,15)
-                elif _sSBLevel == "2":
-                    _dTempTFLevel = random.randint(5,12)
-                elif _sSBLevel == "1":
-                    _dTempTFLevel = random.randint(1,7)
+                if _dSBLevel == SBLevel.Lv3:
+                    _dTempTFLevel = random.randint(13,15)
+                elif _dSBLevel == SBLevel.Lv2:
+                    _dTempTFLevel = random.randint(9,14)
+                elif _dSBLevel == SBLevel.Lv1:
+                    _dTempTFLevel = random.randint(5,10)
 
                 if k <= _dDefenceTFCount:
-                    _sTempTFStandardCode = random.randint( 0, len(_ltTFCount) - 1 )
-                    _sTFPrimaryKey = "01" + _dfSeedTF.loc[_sTempTFStandardCode, "StandardCode"] + "00" + Dec2Hex(_dTempTFLevel, 1)
+                    _sTempTFIndex = random.randint( 0, len(_ltTF) - 1 )
+                    _sTempTFStandardCode = str(_ltTF[_sTempTFIndex])
+                    _sTFPrimaryKey = "01" + _sTempTFStandardCode + "00" + Dec2Hex(_dTempTFLevel, 1)
                     _dfSquadFile.loc[i, "transformers_" + str(k) ] = int( _sTFPrimaryKey, 16 )
-                    _ltTFCount.pop(_sTempTFStandardCode)
+                    _ltTF.pop(_sTempTFIndex)
                 else:
                     _dfSquadFile.loc[i, "transformers_" + str(k) ] = 0
 
