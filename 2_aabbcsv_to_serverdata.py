@@ -248,9 +248,9 @@ for _fileOriginCsvfile in glob.glob(_pathLocation+"*.csv"):
             _fRatioMainEvent = 0
 
             if SBLevel.Lv1 == _dSBLevel:
-                _fRatioMainEvent = 0.1
+                _fRatioMainEvent = 0.05
             elif SBLevel.Lv2 == _dSBLevel:
-                _fRatioMainEvent = 0.2
+                _fRatioMainEvent = 0.1
             elif SBLevel.Lv3 == _dSBLevel:
                 _fRatioMainEvent = 1.0
 
@@ -336,9 +336,9 @@ for _fileOriginCsvfile in glob.glob(_pathLocation+"*.csv"):
                 if _dSBLevel == SBLevel.Lv3:
                     _dTempTFLevel = random.randint(13,15)
                 elif _dSBLevel == SBLevel.Lv2:
-                    _dTempTFLevel = random.randint(4,7)
+                    _dTempTFLevel = random.randint(2,9)
                 elif _dSBLevel == SBLevel.Lv1:
-                    _dTempTFLevel = random.randint(2,5)
+                    _dTempTFLevel = random.randint(1,4)
 
                 if k <= _dDefenceTFCount:
                     _sTempTFIndex = random.randint( 0, len(_ltTF) - 1 )
