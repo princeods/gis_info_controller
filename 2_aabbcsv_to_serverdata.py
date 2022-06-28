@@ -17,8 +17,7 @@ _pathToSBLocation = "./space_bridge/"
 _pathToNameLocation = "./space_bridge_name/"
 _pathToHQLocation = "./space_bridge_hq/"
 _pathToSquadLocation = "./space_bridge_squad/"
-_pathSeed = "./"
-_fileSeed = "seed.xlsm"
+_fileSeed = "./seed.xlsm"
 
 # -----------------------------------------------------------------------------------
 
@@ -69,11 +68,11 @@ _liEventTimeFactor = [1, 2, 2, 1,  1,  4,  4,  3,  2,  1,  2,  2,  3,  4,  5,  5
 # -----------------------------------------------------------------------------------
 
 _dicCountryCode = {"ko":"1", "jp":"2", "ch":"3", "tw":"4", "us":"5", "ru":"6", "de":"7", "as":"e", "te":"f"}
-_dfSeedTFS = pandas.read_excel(_pathSeed + _fileSeed, _wsTransformers + "_S", engine='openpyxl')
-_dfSeedTFA = pandas.read_excel(_pathSeed + _fileSeed, _wsTransformers + "_A", engine='openpyxl')
-_dfSeedTFB = pandas.read_excel(_pathSeed + _fileSeed, _wsTransformers + "_B", engine='openpyxl')
-_dfSeedTFC = pandas.read_excel(_pathSeed + _fileSeed, _wsTransformers + "_C", engine='openpyxl')
-_dfCubeSocket = pandas.read_excel(_pathSeed + _fileSeed, _wsCubeSocket, engine='openpyxl')
+_dfSeedTFS = pandas.read_excel(_fileSeed, _wsTransformers + "_S", engine='openpyxl')
+_dfSeedTFA = pandas.read_excel(_fileSeed, _wsTransformers + "_A", engine='openpyxl')
+_dfSeedTFB = pandas.read_excel(_fileSeed, _wsTransformers + "_B", engine='openpyxl')
+_dfSeedTFC = pandas.read_excel(_fileSeed, _wsTransformers + "_C", engine='openpyxl')
+_dfCubeSocket = pandas.read_excel(_fileSeed, _wsCubeSocket, engine='openpyxl')
 
 #_dSeedTFCount = len(_dfSeedTF)
 _dSeedCubeSocketCount = len(_dfCubeSocket) - 1
@@ -87,20 +86,12 @@ class SBLevel:
 
 # -----------------------------------------------------------------------------------
 
-# def Dec2Hex(_dValue,_dDigit):
-#     _sTemp = format(_dValue,"X")
-#     for i in range(_dDigit - len(_sTemp)):
-#         _sTemp = "0" + _sTemp
-#     return _sTemp
-
-# -----------------------------------------------------------------------------------
-
-def CreateFolder(directory):
-    try:
-        if not os.path.exists(directory):
-            os.makedirs(directory)
-    except OSError:
-        print ("Error: Creating directory. " +  directory)
+# def CreateFolder(directory):
+#     try:
+#         if not os.path.exists(directory):
+#             os.makedirs(directory)
+#     except OSError:
+#         print ("Error: Creating directory. " +  directory)
 
 # -----------------------------------------------------------------------------------
 
@@ -270,14 +261,21 @@ for _fileOriginCsvfile in glob.glob(_pathLocation+"*.csv"):
             else:
                 # 1 차 이벤트 중 24 시간이 아닌 경우, 가중치를 적용해서 동접 많은 시간에 많이 나오게..                
                 _dfSBFile.loc[i, "timeEvent00"] = random.choices(_liEventTime, _liEventTimeFactor)[0]
-                _dfSBFile.loc[i, "minuteEvent00"] = random.randint(0,59)
+                if _hhMainEventTime == 1:
+                    _dfSBFile.loc[i, "minuteEvent01"] = random.randint(0,29)
+                else:
+                    _dfSBFile.loc[i, "minuteEvent01"] = random.randint(0,59)
 
             if random.random() <= 0.5:
                 # 50% 는 2 차 이벤트 발생
                 # 2 차 이벤트는 고르게 - 무작위로..
                 _dfSBFile.loc[i, "weekEvent01"] = "1111111"
-                _dfSBFile.loc[i, "timeEvent01"] = random.randint(6,25) % 24
-                _dfSBFile.loc[i, "minuteEvent01"] = random.randint(0,59)
+                _hhMainEventTime = random.randint(6,25) % 24
+                _dfSBFile.loc[i, "timeEvent01"] = _hhMainEventTime
+                if _hhMainEventTime == 1:
+                    _dfSBFile.loc[i, "minuteEvent01"] = random.randint(0,29)
+                else:
+                    _dfSBFile.loc[i, "minuteEvent01"] = random.randint(0,59)
             else:
                 _dfSBFile.loc[i, "weekEvent01"] = "0000000"
                 _dfSBFile.loc[i, "timeEvent01"] = 0
