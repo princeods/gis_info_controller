@@ -260,7 +260,7 @@ for _fileOriginCsvfile in glob.glob(_pathLocation+"*.csv"):
                 _dfSBFile.loc[i, "minuteEvent00"] = random.randint(0,59)
             else:
                 # 1 차 이벤트 중 24 시간이 아닌 경우, 가중치를 적용해서 동접 많은 시간에 많이 나오게..                
-                _dfSBFile.loc[i, "timeEvent00"] = random.choices(_liEventTime, _liEventTimeFactor)[0]
+                _dfSBFile.loc[i, "timeEvent00"] = _hhMainEventTime = random.choices(_liEventTime, _liEventTimeFactor)[0]
                 if _hhMainEventTime == 1:
                     _dfSBFile.loc[i, "minuteEvent01"] = random.randint(0,29)
                 else:
