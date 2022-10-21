@@ -15,7 +15,7 @@ def CreateFolder(directory):
 
 # -----------------------------------------------------------------------------------
 
-_pathLocation = "./aabb/"
+_pathLocation = "./aabb_origin/"
 _pathToLocation = "./geojson/"
 
 # check & generate folder ---------------------------------------------------------------------------------------

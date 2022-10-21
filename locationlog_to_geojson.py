@@ -23,6 +23,10 @@ _pathToLocation = "./locationgeojson/"
 if os.path.isdir(_pathToLocation) != True:
     CreateFolder(_pathToLocation)
 
+# -----------------------------------------------------------------------------------
+
+#typeGeData = input("생성할 날짜 선택 ( ex. yyyy-mm-dd )")
+
 # generate geojson ----------------------------------------------------------------------------------------------
 
 for _fileOriginCsvfile in tqdm(glob.glob(_pathLocation+"*.csv")):

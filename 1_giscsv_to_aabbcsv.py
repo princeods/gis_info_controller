@@ -7,23 +7,16 @@ import pandas
 from tqdm import tqdm
 import datetime
 import haversine 
+from snowpipe import *
 
 _pathLocation = "./origin/"             #가져올 파일 위치
 _pathToLocation = "./aabb/"             #출력폴더
 
-_fDistanceSb2Sb = 90                    #스페이스 브리지 간 최소 거리
-
+#_fDistanceSb2Sb = 110                    #스페이스 브리지 간 최소 거리
+_fDistanceSb2Sb = int(input("스페이스 브리지 간 최소 거리를 입력하시오 ( 단위 : m ): "))
 _tStartTime = datetime.datetime.now()
 
-# lineC = int(input("파일 당 포인트 수량을 입력 하시오 ( max : 65535 ) : "))
 _dLineC = 65535
-
-def CreateFolder(_sDirectoryName): # 폴더 생성
-    try:
-        if not os.path.exists(_sDirectoryName):
-            os.makedirs(_sDirectoryName)
-    except OSError:
-        print ('Error: Creating directory. ' +  _sDirectoryName)
 
 def CalcSb2SbDistance(_fTempLon, _fTempLat):
     try:
@@ -49,7 +42,7 @@ def CalcSb2SbDistance(_fTempLon, _fTempLat):
         return False
 
 _dOutputIndex = 0
-_dFileIndex = 0
+_dFileIndex = 1
 
 for _fileOriginCsvfile in glob.glob(_pathLocation+'*.csv'):
 
@@ -96,7 +89,7 @@ for _fileOriginCsvfile in glob.glob(_pathLocation+'*.csv'):
 
         if ( _dOutputIndex == ( _dLineC - 1 ) ) or ( j == int(len(_dfTemp) - 1 ) ):
             # _dfOutput.to_csv( os.replace(_fileOriginCsvfile, ".csv", "") )
-            _dfOutput.to_csv( _pathToLocation + _sFilename.replace( ".csv", "_" ) + str( _dFileIndex ) + ".csv", sep=",", index = False, encoding = "utf-8-sig" , line_terminator = "\r\n", float_format = "%.7f" )
+            _dfOutput.to_csv( _pathToLocation + _sFilename.replace( ".csv", "_" ) + str(_dFileIndex).zfill(2) + ".csv", sep=",", index = False, encoding = "utf-8-sig" , line_terminator = "\r\n", float_format = "%.7f" )
 
             _dfOutput = pandas.DataFrame(index=range(0,0),columns = ['osm_id','name','x','y'])
             _dOutputIndex = 0
