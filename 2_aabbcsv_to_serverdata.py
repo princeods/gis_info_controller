@@ -1,3 +1,4 @@
+from cmath import isnan
 import os
 import glob
 import math
@@ -8,6 +9,7 @@ from tqdm import tqdm
 import datetime
 from enum import Enum
 import randy
+import numpy
 from snowpipe import *
 
 # -----------------------------------------------------------------------------------
@@ -25,8 +27,8 @@ _tStartTime = datetime.datetime.now()
 
 _dMaxNameLenth = 20
 _dSBLod = 65536     # 스페이스 브리지 영역 구분을 위한 기준 레벨
-_dSBLv3Gap = 20    # Lv. 3 스페이스 브리지 간격
-_dSBLv1Gap = 3      # Lv. 1 스페이스 브리지 간격
+_dSBLv3Gap = 8      # Lv. 3 스페이스 브리지 간격
+_dSBLv4Gap = 25     # Lv. 1 스페이스 브리지 간격
 
 _sNoName = "NO NAME"
 
@@ -91,6 +93,7 @@ _liEventTimeFactor = [1, 2, 2, 1,  1,  4,  4,  3,  2,  2,  2,  2,  3,  4,  5,  5
 # -----------------------------------------------------------------------------------
 
 _dicCountryCode = {"ko":"1", "jp":"2", "ch":"3", "tw":"4", "us":"5", "ru":"6", "de":"7", "as":"e", "te":"f"}
+_dfSeedTFSS = pandas.read_excel(_fileSeed, _wsTransformers + "_SS", engine='openpyxl')
 _dfSeedTFS = pandas.read_excel(_fileSeed, _wsTransformers + "_S", engine='openpyxl')
 _dfSeedTFA = pandas.read_excel(_fileSeed, _wsTransformers + "_A", engine='openpyxl')
 _dfSeedTFB = pandas.read_excel(_fileSeed, _wsTransformers + "_B", engine='openpyxl')
@@ -176,8 +179,8 @@ for _fileOriginCsvfile in glob.glob(_pathLocation+"*.csv"):
             else:
                 if (i / _dSBLv3Gap) == int(i / _dSBLv3Gap):
                     _sSBLevel = 3
-                # elif (i / _dSBLv1Gap) == int(i / _dSBLv1Gap):
-                #     _sSBLevel = 1
+                elif (i / _dSBLv4Gap) == int(i / _dSBLv4Gap):
+                    _sSBLevel = 1
                 else:
                     _sSBLevel = 2
 
@@ -328,17 +331,17 @@ for _fileOriginCsvfile in glob.glob(_pathLocation+"*.csv"):
             # 브리지 레벨에 따라, 방어 스쿼드 후보군을 리스트로 만들고
 
             if _sSBLevel == SBLevel.Lv4:
-                #_dDefenceTFCount = 3
-                _ltTF = _dfSeedTFS['StandardCode'].values.tolist()
+                _ltTF = [ _dfSeedTFS['StandardCode'].values.tolist() + _dfSeedTFSS['StandardCode'].values.tolist(), \
+                          _dfSeedTFS['rankup'].values.tolist() + _dfSeedTFSS['rankup'].values.tolist() ]
             elif _sSBLevel == SBLevel.Lv3:
-                #_dDefenceTFCount = 3
-                _ltTF = _dfSeedTFA['StandardCode'].values.tolist() + _dfSeedTFS['StandardCode'].values.tolist()
+                _ltTF = [ _dfSeedTFA['StandardCode'].values.tolist() + _dfSeedTFS['StandardCode'].values.tolist() + _dfSeedTFSS['StandardCode'].values.tolist(), \
+                          _dfSeedTFA['rankup'].values.tolist() + _dfSeedTFS['rankup'].values.tolist() + _dfSeedTFSS['rankup'].values.tolist() ]
             elif _sSBLevel == SBLevel.Lv2:
-                #_dDefenceTFCount = random.randint(2, 3)
-                _ltTF = _dfSeedTFB['StandardCode'].values.tolist() + _dfSeedTFA['StandardCode'].values.tolist() + _dfSeedTFS['StandardCode'].values.tolist()
+                _ltTF = [ _dfSeedTFB['StandardCode'].values.tolist() + _dfSeedTFA['StandardCode'].values.tolist() + _dfSeedTFS['StandardCode'].values.tolist(), \
+                          _dfSeedTFB['rankup'].values.tolist() + _dfSeedTFA['rankup'].values.tolist() + _dfSeedTFS['rankup'].values.tolist() ]
             elif _sSBLevel == SBLevel.Lv1:
-                #_dDefenceTFCount = random.randint(1, 2)
-                _ltTF = _dfSeedTFC['StandardCode'].values.tolist() + _dfSeedTFB['StandardCode'].values.tolist()
+                _ltTF = [ _dfSeedTFC['StandardCode'].values.tolist() + _dfSeedTFB['StandardCode'].values.tolist(), \
+                          _dfSeedTFC['rankup'].values.tolist() + _dfSeedTFB['rankup'].values.tolist() ]
 
             # 요새 레벨에 따라, 스쿼드 구성 수량 지정.
 
@@ -360,22 +363,22 @@ for _fileOriginCsvfile in glob.glob(_pathLocation+"*.csv"):
                     _dTempTFLevel = 0
                     
                     if _sSBLevel == SBLevel.Lv4:
-                        _dTempTFLevel = random.randint(14,15)
+                        _dTempTFLevel = random.randint(16,20)
                     elif _sSBLevel == SBLevel.Lv3:
-                        _dTempTFLevel = random.randint(8,15)
+                        _dTempTFLevel = random.randint(10,17)
                     elif _sSBLevel == SBLevel.Lv2:
-                        _dTempTFLevel = random.randint(3,9)
+                        _dTempTFLevel = random.randint(4,11)
                     elif _sSBLevel == SBLevel.Lv1:
                         _dTempTFLevel = random.randint(2,5)
 
-                    _sTempTFIndex = random.randint( 0, len(_ltTF) - 2 )
-                    _sTempTFStandardCode = str(_ltTF[_sTempTFIndex])
-                    
-                    #print ( f"{_xPrimaryKey} : {_sSBLevel} : {len(_ltTF)} : {_sTempTFStandardCode} : {_sTempTFIndex}" )
-                    
-                    _sTFPrimaryKey = "01" + _sTempTFStandardCode + "00" + Dec2Hex(_dTempTFLevel, 1)
+                    _sTempTFIndex = random.randint( 0, len(_ltTF[0]) - 2 )
+                    _sTempTFStandardCode = str(_ltTF[0][_sTempTFIndex])
+                    _sTempTFIsRankup =  _ltTF[1][_sTempTFIndex]
+
+                    _sTFPrimaryKey = "01" + _sTempTFStandardCode + Dec2Hex(_dTempTFLevel + ( 0 if numpy.isnan(_sTempTFIsRankup)  else 20 ), 3)
                     _dfSquadFile.loc[i, "transformers_" + str(k) ] = int( _sTFPrimaryKey, 16 )
-                    _ltTF.pop(_sTempTFIndex)
+                    _ltTF[0].pop(_sTempTFIndex)
+                    _ltTF[1].pop(_sTempTFIndex)
                 else:
                     _dfSquadFile.loc[i, "transformers_" + str(k) ] = 0
 
