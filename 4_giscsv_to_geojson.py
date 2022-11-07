@@ -63,7 +63,7 @@ for _fileOriginCsvfile in tqdm(glob.glob(_pathSBLocation+"*.csv")):
             temp = Dec2Hex(_dfSquad.loc[i, "transformers_" + str( j + 1 )], 8)[2:5]
 
             if temp != "000":
-                tempLevel = Dec2Hex(_dfSquad.loc[i, "transformers_" + str( j + 1 )], 8)[7:8]
+                tempLevel = Dec2Hex(_dfSquad.loc[i, "transformers_" + str( j + 1 )], 8)[6:8]
                 tempIndex = _dfSeedTF.index[_dfSeedTF['StandardCode'] == temp].tolist()
                 tempName = _dfSeedTF.loc[tempIndex[0], "Name"]
 
